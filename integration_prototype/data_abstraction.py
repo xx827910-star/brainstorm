@@ -273,16 +273,44 @@ class DataAbstractionLayer:
         )
 
     def get_historical_price_sync(self, symbol: str, start_date: str, end_date: str) -> pd.DataFrame:
-        """同步版本的历史数据获取（用于兼容旧代码）"""
-        return asyncio.run(self.get_historical_price(symbol, start_date, end_date))
+        """
+        同步版本的历史数据获取（用于兼容旧代码）
+
+        注意：这个方法应该在非async环境中使用。
+        如果在async函数中，请直接使用 await get_historical_price()
+        """
+        try:
+            loop = asyncio.get_running_loop()
+            # 已经在async环境中了，不能使用 asyncio.run()
+            raise RuntimeError(
+                "Cannot use sync method in async context. "
+                "Use: await dal.get_historical_price() instead"
+            )
+        except RuntimeError:
+            # 不在async环境中，可以安全使用
+            return asyncio.run(self.get_historical_price(symbol, start_date, end_date))
 
     def get_fundamentals_sync(self, symbol: str) -> Dict[str, Any]:
         """同步版本的基本面数据获取"""
-        return asyncio.run(self.get_fundamentals(symbol))
+        try:
+            loop = asyncio.get_running_loop()
+            raise RuntimeError(
+                "Cannot use sync method in async context. "
+                "Use: await dal.get_fundamentals() instead"
+            )
+        except RuntimeError:
+            return asyncio.run(self.get_fundamentals(symbol))
 
     def get_news_sync(self, symbol: str, limit: int = 20) -> List[Dict[str, Any]]:
         """同步版本的新闻获取"""
-        return asyncio.run(self.get_news(symbol, limit))
+        try:
+            loop = asyncio.get_running_loop()
+            raise RuntimeError(
+                "Cannot use sync method in async context. "
+                "Use: await dal.get_news() instead"
+            )
+        except RuntimeError:
+            return asyncio.run(self.get_news(symbol, limit))
 
 
 class DataFetchError(Exception):
