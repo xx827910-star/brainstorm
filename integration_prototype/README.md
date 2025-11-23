@@ -1,46 +1,72 @@
 # TradingAgents-CN + OpenBB Integration Prototype
 
-这是一个将 **TradingAgents-CN** 与 **OpenBB Platform** 整合的原型项目，使用 Mock 数据进行测试。
+这是一个将 **TradingAgents-CN** 与 **OpenBB Platform** 整合的项目，**支持真实 API 和 Mock 数据**。
+
+🎉 **真实 API 整合已完成！** 详见 [REAL_API_INTEGRATION.md](REAL_API_INTEGRATION.md)
 
 ## 📋 项目结构
 
 ```
 integration_prototype/
-├── providers/                    # 数据提供商
+├── providers/                           # 数据提供商
 │   └── openbb/
 │       ├── __init__.py
-│       ├── mock_provider.py      # Mock OpenBB Provider（测试用）
-│       └── openbb_provider.py    # 真实 OpenBB Provider
-├── tests/                        # 测试代码
+│       ├── mock_provider.py             # Mock Provider（测试用）
+│       ├── yahoo_provider.py            # Yahoo Finance Provider（真实 API）✨NEW
+│       └── openbb_provider.py           # OpenBB Platform Provider（真实 API）
+├── tests/                               # 测试代码
 │   ├── __init__.py
-│   └── test_mock_provider.py     # Mock Provider 测试
-├── examples/                     # 示例代码
-│   └── basic_usage.py            # 基础使用示例
-├── config/                       # 配置文件
-│   └── provider_config.yaml      # 数据源配置
-└── README.md                     # 本文件
+│   ├── test_mock_provider.py            # Mock Provider 测试
+│   └── test_agent_integration.py        # Agent 集成测试
+├── examples/                            # 示例代码
+│   ├── basic_usage.py                   # 基础使用示例
+│   ├── agent_demo.py                    # Agent 演示
+│   ├── real_openbb_demo.py              # OpenBB 真实 API 演示
+│   └── real_api_integration_demo.py     # 真实 API 完整演示 ✨NEW
+├── config/                              # 配置文件
+│   └── provider_config.yaml             # 数据源配置
+├── data_abstraction.py                  # 数据抽象层（支持多数据源）
+├── migration_guide.py                   # 迁移指南
+├── README.md                            # 本文件
+└── REAL_API_INTEGRATION.md              # 真实 API 整合文档 ✨NEW
 ```
 
 ## 🚀 快速开始
 
 ### 1. 安装依赖
 
+**基础依赖（必需）：**
 ```bash
 pip install pandas numpy pytest pytest-asyncio pyyaml
 ```
 
-如果要使用真实的 OpenBB（可选）：
+**真实 API 支持：**
 ```bash
+# 使用 Yahoo Finance API（推荐，免费）
+pip install aiohttp
+
+# 或使用完整 OpenBB Platform（可选）
 pip install openbb
 ```
 
 ### 2. 运行示例代码
 
-运行基础使用示例（使用 Mock 数据）：
-
+**使用 Mock 数据（无需网络）：**
 ```bash
 cd integration_prototype
 python examples/basic_usage.py
+```
+
+**使用真实 API（需要网络）：**
+```bash
+cd integration_prototype
+python examples/real_api_integration_demo.py
+```
+
+**Agent 完整演示：**
+```bash
+cd integration_prototype
+python examples/agent_demo.py
 ```
 
 ### 3. 运行测试
@@ -179,7 +205,9 @@ Mock Provider 生成的数据具有以下特性：
 - [x] ✅ 与 Agent 层集成（SimplifiedMarketAnalyst 演示）
 - [x] ✅ 11个集成测试全部通过
 - [x] ✅ 完整的迁移指南和文档
-- [x] ✅ 真实 OpenBB API 集成准备就绪
+- [x] ✅ **真实 Yahoo Finance API 集成完成** ✨NEW
+- [x] ✅ **多数据源支持（Mock / Yahoo / OpenBB）** ✨NEW
+- [x] ✅ **完整的真实 API 演示和文档** ✨NEW
 
 ## 🚀 下一步计划
 

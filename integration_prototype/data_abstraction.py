@@ -36,18 +36,32 @@ class DataAbstractionLayer:
         """注册所有数据提供商"""
         # 检查是否使用 Mock 数据
         use_mock = self.config.get('use_mock', True)
+        provider_type = self.config.get('provider_type', 'openbb')  # 'openbb', 'yahoo', or 'mock'
 
         if use_mock:
             from providers.openbb.mock_provider import MockOpenBBProvider
             self.providers['openbb'] = MockOpenBBProvider(self.config.get('openbb', {}))
+            print("✅ Using Mock OpenBB Provider (test data)")
         else:
-            try:
-                from providers.openbb.openbb_provider import OpenBBProvider
-                self.providers['openbb'] = OpenBBProvider(self.config.get('openbb', {}))
-            except ImportError:
-                print("Warning: Real OpenBB provider not available, falling back to Mock")
-                from providers.openbb.mock_provider import MockOpenBBProvider
-                self.providers['openbb'] = MockOpenBBProvider(self.config.get('openbb', {}))
+            # 支持多种真实 API 提供商
+            if provider_type == 'yahoo':
+                try:
+                    from providers.openbb.yahoo_provider import YahooFinanceProvider
+                    self.providers['openbb'] = YahooFinanceProvider(self.config.get('yahoo', {}))
+                    print("✅ Using Yahoo Finance Provider (real API)")
+                except ImportError as e:
+                    print(f"Warning: Yahoo Finance provider not available: {e}, falling back to Mock")
+                    from providers.openbb.mock_provider import MockOpenBBProvider
+                    self.providers['openbb'] = MockOpenBBProvider(self.config.get('openbb', {}))
+            else:
+                try:
+                    from providers.openbb.openbb_provider import OpenBBProvider
+                    self.providers['openbb'] = OpenBBProvider(self.config.get('openbb', {}))
+                    print("✅ Using OpenBB Platform Provider (real API)")
+                except ImportError:
+                    print("Warning: Real OpenBB provider not available, falling back to Mock")
+                    from providers.openbb.mock_provider import MockOpenBBProvider
+                    self.providers['openbb'] = MockOpenBBProvider(self.config.get('openbb', {}))
 
     def _detect_market(self, symbol: str) -> str:
         """
