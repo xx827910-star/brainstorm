@@ -1,0 +1,108 @@
+# Data Provider Configuration for TradingAgents-OpenBB Integration
+
+# 数据源配置
+data_sources:
+  # OpenBB 配置
+  openbb:
+    enabled: true
+    use_mock: true  # 设置为 true 使用 Mock 数据，false 使用真实 API
+
+    # 数据提供商偏好（使用真实 OpenBB 时生效）
+    provider_preference:
+      equity_historical: yfinance
+      equity_fundamentals: fmp
+      news: benzinga
+      economic: fred
+
+    # API Keys（使用真实 OpenBB 时需要配置）
+    api_keys:
+      # Financial Modeling Prep
+      fmp: ${FMP_API_KEY}
+      # Polygon.io
+      polygon: ${POLYGON_API_KEY}
+      # Benzinga
+      benzinga: ${BENZINGA_API_KEY}
+      # Alpha Vantage
+      alpha_vantage: ${ALPHA_VANTAGE_API_KEY}
+
+  # Tushare 配置（保留用于 A 股）
+  tushare:
+    enabled: true
+    token: ${TUSHARE_TOKEN}
+    priority: 1  # A 股数据源优先级
+
+  # AkShare 配置（备用）
+  akshare:
+    enabled: true
+    priority: 2
+
+# 数据源路由规则
+# 定义不同市场和数据类型使用哪些数据源
+provider_routing:
+  # 美股市场
+  US:
+    historical: [openbb]
+    fundamentals: [openbb]
+    news: [openbb]
+    options: [openbb]
+
+  # A股市场
+  CN:
+    historical: [tushare, openbb]  # 优先 Tushare，失败后使用 OpenBB
+    fundamentals: [tushare, openbb]
+    news: [openbb, tushare]
+    indices: [tushare]
+
+  # 港股市场
+  HK:
+    historical: [openbb, tushare]
+    fundamentals: [openbb]
+    news: [openbb]
+
+  # 加密货币
+  crypto:
+    historical: [openbb]
+    fundamentals: [openbb]
+    news: [openbb]
+
+# 缓存配置
+cache:
+  # Redis 配置
+  redis:
+    host: localhost
+    port: 6379
+    db: 0
+    password: null
+
+  # MongoDB 配置
+  mongodb:
+    host: localhost
+    port: 27017
+    database: tradingagents
+    collection: market_data
+
+  # 缓存 TTL（秒）
+  ttl:
+    historical: 3600      # 1 hour
+    fundamentals: 86400   # 24 hours
+    news: 1800            # 30 minutes
+    indices: 300          # 5 minutes
+
+# 性能配置
+performance:
+  # 并发请求数
+  max_concurrent_requests: 10
+
+  # 请求超时（秒）
+  request_timeout: 30
+
+  # 重试配置
+  retry:
+    max_attempts: 3
+    backoff_factor: 2  # 指数退避系数
+
+# 日志配置
+logging:
+  level: INFO
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: logs/provider.log
